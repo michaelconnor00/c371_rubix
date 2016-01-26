@@ -13,7 +13,7 @@ public class RubixTest {
     @org.junit.Test
     public void testInitSolvedRubix() throws Exception {
         Rubix test_cube = new Rubix(2);
-        assertEquals(test_cube.getGameTileSize(), 6*(2*2));
+        assertEquals(test_cube.getGameArray().length, 6*(2*2));
         byte[] gameArray = test_cube.getGameArray();
         int start_index_face_2 = (2*2)*2;
         int end_index_face_2 = (2*2)*3;
@@ -22,7 +22,7 @@ public class RubixTest {
         assertEquals(Arrays.toString(expected), Arrays.toString(actual));
 
         test_cube = new Rubix(16);
-        assertEquals(test_cube.getGameTileSize(), 6*(16*16));
+        assertEquals(test_cube.getGameArray().length, 6*(16*16));
         gameArray = test_cube.getGameArray();
         start_index_face_2 = (16*16)*4;
         end_index_face_2 = (16*16)*5;

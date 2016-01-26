@@ -1,43 +1,47 @@
 package rubix_cube;
 
 /**
+ * This Enum provides static data for the predefined faces of the Rubix Cube.
+ *
  * Created by michaelconnor on 2016-01-19.
  */
 public enum Face {
-    X0_0(Axis.X, 0, 0, new Axis[]{Axis.Y, Axis.Z}),
-    X1_1(Axis.X, 1, 1, new Axis[]{Axis.Y, Axis.Z}), // Two faces perpendicular to the x-axis
-    Y0_2(Axis.Y, 0, 2, new Axis[]{Axis.X, Axis.Z}),
-    Y1_3(Axis.Y, 1, 3, new Axis[]{Axis.X, Axis.Z}), // Two faces perpendicular to the y-axis
-    Z0_4(Axis.Z, 0, 4, new Axis[]{Axis.Y, Axis.X}),
-    Z1_5(Axis.Z, 1, 5, new Axis[]{Axis.Y, Axis.X})  // Two faces perpendicular to the z-axis
+    XOrigin("X", 0, true),
+    XOpposite("X", 1, false), // Two faces perpendicular to the x-axis
+    YOrigin("Y", 2, true),
+    YOpposite("Y", 3, false), // Two faces perpendicular to the y-axis
+    ZOrigin("Z", 4, true),
+    ZOpposite("Z", 5, false)  // Two faces perpendicular to the z-axis
     ;
 
-    private Axis axis;
-    private int value;
-    private int index;
-    private Axis[] axisOfRotation;
+    private String axis;  // The axis the face is perpendicular to
+    private int index;  // The 1D index for this face
+    private boolean atOrigin;
 
-    private Face (Axis axis, int value, int index, Axis[] axisOfRotation){
+    /**
+     * The constructor for the Face enums
+     * @param axis: The axis the face is perpendicular to. This means that for this face,
+     *            all coordinates are fixed for axis. It also means:
+     *            - Origin faces: the axis coordinate is 0, and for
+     *            - Opposite faces: the axis coordinate is size-1.
+     * @param index This index is used to calculate the 1D array index of the face tiles.
+     */
+    private Face (String axis,int index, boolean atOrigin){
+        this.atOrigin = atOrigin;
         this.axis = axis;
-        this.value = value;
         this.index = index;
-        this.axisOfRotation = axisOfRotation;
     }
 
 
-    public Axis getAxis() {
+    public String getAxis() {
         return axis;
     }
 
-    public int getValue() {
-        return value;
-    }
-
-    public int getIndex() {
+    public int getFaceIndex() {
         return index;
     }
 
-    public Axis[] getAxisOfRotation() {
-        return axisOfRotation;
+    public boolean isAtOrigin() {
+        return atOrigin;
     }
 }

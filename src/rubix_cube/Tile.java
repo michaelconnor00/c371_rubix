@@ -1,47 +1,44 @@
 package rubix_cube;
 
 /**
+ * This class represents a single tile on a face of the Rubix Cube.
+ *
  * Created by michaelconnor on 2016-01-19.
  */
 public class Tile {
-//    private Tile cwRotation;
-//    private Tile ccwRotation;
-    private int[] cwCoords;
-    private int[] ccwCoords;
-    private int[] coords; // [row, col]
-    private Face myFace;
 
-    public Tile(Face face, int row, int col){
-        this.myFace = face;
-        this.coords = new int[]{face.getValue(), row, col};
+    private int cwIndex;
+    private int ccwIndex;
+    private int index;
+
+    public Tile(int index){
+        this.index = index;
     }
 
-    public void setNeighborCoords(Direction direction, Face face, int row, int col){
+    public void setNeighborIndex(Direction direction, int nextIndex){
         switch (direction){
             case CW:
-                this.cwCoords = new int[]{face.getValue(), row, col};
+                this.cwIndex = nextIndex;
+                break;
             case CCW:
-                this.ccwCoords = new int[]{face.getValue(), row, col};
+                this.ccwIndex = nextIndex;
+                break;
         }
     }
 
-    public int[] getNeighborCoords(Direction direction){
+    public int getNeighborIndex(Direction direction){
         switch (direction){
             case CW:
-                return this.cwCoords;
+                return this.cwIndex;
             case CCW:
-                return this.ccwCoords;
+                return this.ccwIndex;
             default:
-                return null;
+                return -1;
         }
     }
 
-    public int[] getCoords(){
-        return this.coords;
-    }
-
-    public Face getFace(){
-        return this.myFace;
+    public int getIndex(){
+        return this.index;
     }
 
 }
