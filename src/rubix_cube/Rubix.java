@@ -1,5 +1,8 @@
 package rubix_cube;
 
+import search.SearchNode;
+import search.Searchable;
+
 import java.util.Arrays;
 import java.util.HashMap;
 
@@ -8,11 +11,14 @@ import java.util.HashMap;
  * The Rubix class represents the rubix cube and it's structure.
  * Created by michaelconnor on 2016-01-13.
  */
-public class Rubix {
+public class Rubix implements Searchable {
     private int size;
-    private byte[] game_array = null;
+    private byte[] game_array;
+    private byte[] gameGoalState;
     private HashMap<Axis, RubixSlice[]> game_moves;
     private HashMap<Face, RubixEnd> end_moves;
+    private Move[] rubixCubeMoves;
+    private Move lastMoveTaken;
 
     /**
      * Rubix constructor.
@@ -32,12 +38,29 @@ public class Rubix {
 
         // Create solved cube
         this.game_array = initSolvedRubix(color_array, size*size);
+        copyGoalState();
 
         // Create move map
         this.game_moves = initGameMoves();
-
         this.end_moves = initEndMoves();
 
+        // Create list of all slice moves
+        this.rubixCubeMoves = initRubixCubeMoves(size);
+
+    }
+
+    public Rubix(byte[] gameState, byte[] goalState){ // TODO test
+        this.size = (int) Math.sqrt(gameState.length/6);
+        this.game_array = gameState;
+        // Create move map
+        this.game_moves = initGameMoves();
+        this.end_moves = initEndMoves();
+        this.gameGoalState = goalState;
+    }
+
+    private void copyGoalState(){
+        this.gameGoalState = new byte[this.game_array.length];
+        System.arraycopy(this.game_array, 0, this.gameGoalState, 0, this.game_array.length);
     }
 
     private byte[] initSolvedRubix(byte[] color_array, int num_tiles){
@@ -81,6 +104,25 @@ public class Rubix {
         return endMoves;
     }
 
+    private static Move[] initRubixCubeMoves(int size){
+        Axis[] axises = Axis.values();
+        Direction[] directions = Direction.values();
+
+        Move[] moves = new Move[axises.length * directions.length * size];
+
+        int moveIndex = 0;
+        for (Axis axis : axises){
+            for (Direction dir : directions){
+                for (int i=0; i < size; i++){
+                    moves[moveIndex] = new Move(axis, dir, i);
+                    moveIndex++;
+                }
+            }
+        }
+
+        return moves;
+    }
+
     private RubixSlice[] generateSlices(int size, Axis axis){
         RubixSlice[] newSlices = new RubixSlice[size];
         for (int i=0; i<size; i++){
@@ -89,7 +131,56 @@ public class Rubix {
         return newSlices;
     }
 
+    public boolean isGoalState(){
+        int faceSize = this.size*this.size;
+        byte currColor;
+        //Loop through faces
+        for (int i =0; i<6; i++){
+            currColor = this.game_array[faceSize * i];
+            for (int j=0; j<faceSize; j++){
+                if(currColor != this.game_array[faceSize * i + j]){
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public Searchable[] generateChildren() {
+        Searchable[] children = new Searchable[this.rubixCubeMoves.length];
+        for (int i=0; i<this.rubixCubeMoves.length; i++){
+            Rubix newCube = new Rubix(this.game_array, this.gameGoalState);
+            newCube.move(this.rubixCubeMoves[i]);
+            System.out.println(newCube.toString1D());
+            children[i] = newCube;
+        }
+        return children;
+    }
+
+    @Override
+    public double getHeuristicValue() {
+        return 0;
+    }
+
+    @Override
+    public byte[] getKey() {
+        return this.game_array;
+    }
+
+    public void move (Move moveTaken){
+        this.lastMoveTaken = moveTaken;
+        move(
+            moveTaken.getAxis(),
+            moveTaken.getDirection(),
+            moveTaken.getSliceIndex()
+        );
+    }
+
     public void move (Axis axis, Direction direction, int slice_index){
+        if (slice_index < 0 || slice_index > this.size-1){
+            throw new IllegalArgumentException();
+        }
         // A move around the x-axis involves all faces except X0 and X1. Similar for y and z
         RubixSlice slice = game_moves.get(axis)[slice_index];
 
@@ -99,10 +190,6 @@ public class Rubix {
         byte[] tempGameArray = new byte[this.game_array.length];
         System.arraycopy(this.game_array, 0, tempGameArray, 0, this.game_array.length);
 
-//        for (int[] mapPair : moveTransitionMapping){
-//            // Copy the color at the from Index[0], and paste it at the to Index[1]
-//            this.game_array[mapPair[1]] = tempGameArray[mapPair[0]];
-//        }
         applyMoves(moveTransitionMapping, tempGameArray);
 
         // If slice == 0 || slice == size-1, rotate ends
@@ -236,6 +323,14 @@ public class Rubix {
          */
 
         return serialState;
+    }
+
+    public Move getLastMoveTaken() {
+        return lastMoveTaken;
+    }
+
+    public Move[] getRubixCubeMoves() {
+        return rubixCubeMoves;
     }
 
     public byte[] getGameArray(){

@@ -1,6 +1,9 @@
 package rubix_cube.tests;
 
 import static org.junit.Assert.*;
+
+import rubix_cube.Axis;
+import rubix_cube.Direction;
 import rubix_cube.Rubix;
 
 import java.util.Arrays;
@@ -29,5 +32,15 @@ public class RubixTest {
         actual = Arrays.copyOfRange(gameArray, start_index_face_2, end_index_face_2);
         assertEquals(actual[0], 5);
         assertEquals(actual[255], 5);
+    }
+
+    @org.junit.Test
+    public void testRubixGoalState() throws Exception {
+        Rubix test_cube = new Rubix(2);
+        assertTrue(test_cube.isGoalState());
+        test_cube.move(Axis.X, Direction.CCW, 0);
+        assertFalse(test_cube.isGoalState());
+        test_cube.move(Axis.X, Direction.CW, 0);
+        assertTrue(test_cube.isGoalState());
     }
 }
